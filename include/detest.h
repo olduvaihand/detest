@@ -4,6 +4,7 @@
 #ifndef __DETEST_H__
 #define __DETEST_H__
 #include <setjmp.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -23,6 +24,13 @@ typedef void (*detest_test_suite_teardown_fn)(detest_environment* env);
 typedef void (*detest_test_setup_fn)(detest_environment* env);
 typedef void (*detest_test_teardown_fn)(detest_environment* env);
 typedef void (*detest_test_fn)(detest_test* test, detest_environment* env);
+
+void detest_initialize(detest_environment* env);
+int detest_finalize(detest_environment* env);
+double detest_elapsed_time(detest_environment* env);
+void detest_noop(detest_environment* env);
+
+// Implementations
 
 struct detest_test {
   char* name;
@@ -48,19 +56,13 @@ struct detest_environment {
   void* user_data;
 };
 
-void detest_initialize(detest_environment* env);
-int detest_finalize(detest_environment* env);
-double detest_elapsed_time(detest_environment* env);
-void detest_noop(detest_environment* env);
-
-// Implementations
-
 void detest_initialize(detest_environment* env) {
   gettimeofday(&env->start_time, NULL);
 }
 
 int detest_finalize(detest_environment* env) {
   gettimeofday(&env->end_time, NULL);
+  bool failed = false;
   printf("\n\n");
   if (env->passing->name != NULL) {
     printf("Passing:\n");
@@ -71,6 +73,7 @@ int detest_finalize(detest_environment* env) {
     printf("===============================================================\n\n");
   }
   if (env->failing->name != NULL) {
+    failed = true;
     printf("Failures:\n");
     printf("---------------------------------------------------------------\n");
     for (detest_test* test = env->failing; test->name != NULL; test++) {
@@ -80,7 +83,7 @@ int detest_finalize(detest_environment* env) {
   }
   double elapsed_time = detest_elapsed_time(env);
   printf("Detest completed in %f seconds.\n", elapsed_time);
-  return 0;
+  return (failed ? DETEST_STATUS_FAIL : DETEST_STATUS_PASS);
 }
 
 double detest_elapsed_time(detest_environment* env) {
@@ -110,7 +113,7 @@ void detest_noop(detest_environment* env) {}
 #define Detest_AssertInRange(value, low, high) \
   Detest_Assert(low <= value && value <= high, #value " not in range ["#low", "#high"]")
 
-// Detest functions
+// Detest hooks and functions
 
 #define Detest_TestSuiteSetupFn() void test_suite_setup(detest_environment* env)
 #define Detest_TestSuiteTeardownFn() void test_suite_teardown(detest_environment* env)
