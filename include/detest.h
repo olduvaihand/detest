@@ -1,5 +1,9 @@
 /******************************************************************************
  * detest.h                                                                   *
+ *                                                                            *
+ * Copyright (c) 2015 Ben Trofatter <trofatter@google.com>                    *
+ * This header is part of Detest and is released under the MIT License:       *
+ * http://www.opensource.org/licenses/mit-license.php                         *
  ******************************************************************************/
 #ifndef __DETEST_H__
 #define __DETEST_H__

@@ -1,0 +1,17 @@
+========================================================
+Detest: A simple, header-only framework for C unit tests
+========================================================
+
+TODO: actually write this up properly
+
+Usage:
+======
+
+With detest/include on your include path, in a test file add:
+#include "detest.h"
+
+Use the provided macros to define tests and setup & teardown functions for test
+suites and tests.  A "user_data" void* is available for customization on
+detest_environment structs.
+
+Build and run.
