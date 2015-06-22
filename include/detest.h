@@ -5,7 +5,7 @@
 #define __DETEST_H__
 #include <setjmp.h>
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define DETEST_MAX_TEST_SUITE_SIZE 1024
 
@@ -29,14 +29,49 @@ struct detest_test {
 
 struct detest_test_suite {
   detest_test tests[DETEST_MAX_TEST_SUITE_SIZE];
-  detest_test passing[DETEST_MAX_TEST_SUITE_SIZE];
-  detest_test failing[DETEST_MAX_TEST_SUITE_SIZE];
 };
 
 struct detest_environment {
   jmp_buf jump_buffer;
-  time_t start_time;
+  struct timeval start_time;
+  struct timeval end_time;
+  detest_test passing[DETEST_MAX_TEST_SUITE_SIZE];
+  detest_test failing[DETEST_MAX_TEST_SUITE_SIZE];
 };
+
+void detest_initialize(detest_environment* env) {
+  gettimeofday(&env->start_time, NULL);
+}
+
+double detest_elapsed_time(detest_environment* env) {
+  int start_time = 100000 * env->start_time.tv_sec + env->start_time.tv_usec;
+  int end_time = 100000 * env->end_time.tv_sec + env->end_time.tv_usec;
+  return (end_time - start_time) / 100000.;
+}
+
+int detest_finalize(detest_environment* env) {
+  gettimeofday(&env->end_time, NULL);
+  printf("\n\n");
+  if (env->passing->name != NULL) {
+    printf("Passing:\n");
+    printf("---------------------------------------------------------------\n");
+    for (detest_test* test = env->passing; test->name != NULL; test++) {
+      printf("%s\n", test->name);
+    }
+    printf("===============================================================\n\n");
+  }
+  if (env->failing->name != NULL) {
+    printf("Failures:\n");
+    printf("---------------------------------------------------------------\n");
+    for (detest_test* test = env->failing; test->name != NULL; test++) {
+      printf("%s: %s\n", test->name, test->message);
+    }
+    printf("===============================================================\n\n");
+  }
+  double elapsed_time = detest_elapsed_time(env);
+  printf("Detest completed in %f seconds.\n", elapsed_time);
+  return 0;
+}
 
 #define Detest_Assert(expr, message_) \
   { if (!(expr)) { \
@@ -63,8 +98,9 @@ static detest_test_suite test_suite = { \
 int main(int argc, char* argv[]) { \
   detest_environment env; \
   detest_status status; \
-  detest_test* passing = test_suite.passing; \
-  detest_test* failing = test_suite.failing; \
+  detest_initialize(&env); \
+  detest_test* passing = env.passing; \
+  detest_test* failing = env.failing; \
   for (detest_test* test = test_suite.tests; test->name != NULL; test++) { \
     switch ((status = setjmp(env.jump_buffer))) { \
       case DETEST_STATUS_FAIL: \
@@ -78,20 +114,7 @@ int main(int argc, char* argv[]) { \
         break; \
     } \
   } \
-  printf("\n\n"); \
-  printf("Passing:\n"); \
-  printf("---------------------------------------------------------------\n"); \
-  for (detest_test* test = test_suite.passing; test->name != NULL; test++) { \
-    printf("%s\n", test->name); \
-  } \
-  printf("===============================================================\n\n"); \
-  printf("Failures:\n"); \
-  printf("---------------------------------------------------------------\n"); \
-  for (detest_test* test = test_suite.failing; test->name != NULL; test++) { \
-    printf("%s: %s\n", test->name, test->message); \
-  } \
-  printf("===============================================================\n\n"); \
-  return 0; \
+  return detest_finalize(&env); \
 }
 
 #endif /* __DETEST_H__ */
