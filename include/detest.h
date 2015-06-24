@@ -40,7 +40,6 @@ struct detest_test {
   char* name;
   detest_test_fn test_fn;
   char* message;
-  detest_status status;
 };
 
 struct detest_test_suite {
@@ -105,7 +104,6 @@ void detest_noop(detest_environment* env) {}
 #define Detest_Assert(expr, message_) \
   { if (!(expr)) { \
     test->message = message_; \
-    test->status = DETEST_STATUS_FAIL; \
     longjmp(env->jump_buffer, DETEST_STATUS_FAIL); \
   } }
 #define Detest_AssertTrue(expr) Detest_Assert(expr, #expr" is false.")
@@ -154,44 +152,49 @@ int main(int argc, char* argv[]) { \
 
 // Test suites
 
+#define Detest_TestSuiteSetup test_suite_setup
+#define Detest_TestSuiteTeardown test_suite_teardown
+#define Detest_TestSetup test_setup
+#define Detest_TestTeardown test_teardown
+#define Detest_Noop detest_noop
 #define Detest_Test(test_name) { .name = #test_name, .test_fn = &test_name##_fn }
 
 #define Detest_TestSuite(...) \
 static detest_test_suite test_suite = { \
-  .suite_setup = detest_noop, \
-  .suite_teardown = detest_noop, \
-  .test_setup = &detest_noop, \
-  .test_teardown = detest_noop, \
+  .suite_setup = &Detest_Noop, \
+  .suite_teardown = &Detest_Noop, \
+  .test_setup = &Detest_Noop, \
+  .test_teardown = &Detest_Noop, \
   .tests = { __VA_ARGS__ } \
 }; \
 Detest_Main()
 
 #define Detest_TestSuite_WithSuiteSetupAndTeardown(...) \
 static detest_test_suite test_suite = { \
-  .suite_setup = &test_suite_setup, \
-  .suite_teardown = &test_suite_teardown, \
-  .test_setup = &detest_noop, \
-  .test_teardown = detest_noop, \
+  .suite_setup = &Detest_TestSuiteSetup, \
+  .suite_teardown = &Detest_TestSuiteTeardown, \
+  .test_setup = &Detest_Noop, \
+  .test_teardown = &Detest_Noop, \
   .tests = { __VA_ARGS__ } \
 }; \
 Detest_Main()
 
 #define Detest_TestSuite_WithTestSetupAndTeardown(...) \
 static detest_test_suite test_suite = { \
-  .suite_setup = detest_noop, \
-  .suite_teardown = detest_noop, \
-  .test_setup = &test_setup, \
-  .test_teardown = &test_teardown, \
+  .suite_setup = &Detest_Noop, \
+  .suite_teardown = &Detest_Noop, \
+  .test_setup = &Detest_TestSetup, \
+  .test_teardown = &Detest_TestTeardown, \
   .tests = { __VA_ARGS__ } \
 }; \
 Detest_Main()
 
 #define Detest_TestSuite_WithSuiteAndTestSetupAndTeardown(...) \
 static detest_test_suite test_suite = { \
-  .suite_setup = &test_suite_setup, \
-  .suite_teardown = &test_suite_teardown, \
-  .test_setup = &test_setup, \
-  .test_teardown = &test_teardown, \
+  .suite_setup = &Detest_TestSuiteSetup, \
+  .suite_teardown = &Detest_TestSuiteTeardown, \
+  .test_setup = &Detest_TestSetup, \
+  .test_teardown = &Detest_TestTeardown, \
   .tests = { __VA_ARGS__ } \
 }; \
 Detest_Main()
@@ -199,10 +202,10 @@ Detest_Main()
 #define Detest_TestSuite_WithSuiteAndTestSetupAndTeardownCustom( \
     suite_setup_fn, suite_teardown_fn, test_setup_fn, test_teardown_fn, ...) \
 static detest_test_suite test_suite = { \
-  .suite_setup = suite_setup_fn, \
-  .suite_teardown = suite_teardown_fn, \
-  .test_setup = test_setup_fn, \
-  .test_teardown = test_teardown_fn, \
+  .suite_setup = &suite_setup_fn, \
+  .suite_teardown = &suite_teardown_fn, \
+  .test_setup = &test_setup_fn, \
+  .test_teardown = &test_teardown_fn, \
   .tests = { __VA_ARGS__ } \
 }; \
 Detest_Main()
