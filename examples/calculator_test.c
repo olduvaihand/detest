@@ -53,16 +53,16 @@ Detest_TestFn(test_memory_operators) {
   Detest_AssertTrue(calculator_store(calc, 2, 2.));
   Detest_AssertTrue(calculator_store(calc, 3, 5.));
 
-  calculator_addm(calc, 0, &result);
+  Detest_AssertTrue(calculator_addm(calc, 0, &result));
   Detest_AssertEqual(10., result);
   Detest_AssertEqual(calculator_get_current(calc), result);
-  calculator_subtractm(calc, 1, &result);
+  Detest_AssertTrue(calculator_subtractm(calc, 1, &result));
   Detest_AssertEqual(5., result);
   Detest_AssertEqual(calculator_get_current(calc), result);
-  calculator_multiplym(calc, 2, &result);
+  Detest_AssertTrue(calculator_multiplym(calc, 2, &result));
   Detest_AssertEqual(10., result);
   Detest_AssertEqual(calculator_get_current(calc), result);
-  calculator_dividem(calc, 3, &result);
+  Detest_AssertTrue(calculator_dividem(calc, 3, &result));
   Detest_AssertEqual(2., result);
   Detest_AssertEqual(calculator_get_current(calc), result);
 }
