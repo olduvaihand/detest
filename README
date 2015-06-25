@@ -2,16 +2,82 @@
 Detest: A simple, header-only framework for C unit tests
 ========================================================
 
-TODO: actually write this up properly
+tl;dr
+=====
 
-Usage:
-======
+1. Add '#include "detest.h"' to the top of your test file.
+2. Optionally define setup and teardown routines that let you customize the test
+   environment via the void* user_data member of detest_environment*s.
+3. Define test functions with Detest_Assert* statements.
+3. Build and run.
 
-With detest/include on your include path, in a test file add:
-#include "detest.h"
+Test Suite Setup and Teardown
+-----------------------------
 
-Use the provided macros to define tests and setup & teardown functions for test
-suites and tests.  A "user_data" void* is available for customization on
-detest_environment structs.
+You can define functions to perform test suite initialization and finalization.
+These are particularly useful when doing expensive setup that can be used by
+many or all tests.
 
-Build and run.
+#define Detest_TestSuiteSetupFn void test_suite_setup(detest_environment* env)
+#define Detest_TestSuiteTeardownFn void test_suite_teardown(detest_environment* env)
+
+A function defined by the Detest_TestSuiteSetupFn macro will be called once
+before any tests are run.  It is passed a detest_environment* called env that
+can be customized via a void* member named user_data.
+
+A function defined by the Detest_TestSuiteTeardownFn macro will be called once
+after all tests are run.  It is passed a detest_environment* called env that
+can be customized via a void* member named user_data.  Typically you would
+deallocate resources allocated by the Detest_TestSuiteSetupFn.
+
+Test Setup and Teardown
+-----------------------
+
+You can define functions to perform test initialization and finalization.
+These are particularly useful when doing setup that ensures identical initial
+state for all tests.
+
+#define Detest_TestSetupFn void test_setup(detest_environment* env)
+#define Detest_TestTeardownFn void test_teardown(detest_environment* env)
+
+A function defined by the Detest_TestSetupFn macro will be called once
+before each test is run.  It is passed a detest_environment* called env
+that can be customized via a void* member named user_data.  If you're using a
+test suite setup function, 
+
+A function defined by the Detest_TestTeardownFn macro will be called once
+after each test is run.  It is passed a detest_environment* called env that
+can be customized via a void* member named user_data.  Typically you would
+reset state or deallocate resources allocated by the Detest_TestSetupFn.
+
+Tests
+-----
+
+Each test is defined by the Detest_TestFn macro.
+
+#define Detest_TestFn(name) void name##_fn(detest_test* test, detest_environment* env)
+
+Use the detest_environment* env to access custom state via the user_data member.
+
+A test looks like normal code to set up the condition(s) to test followed by one
+or more assertions.  Assertions are defined in detest.h as macros.  There are
+currently a small number of assertions for checking the truth of an expression;
+numeric, string, and pointer equality; and membership in numeric ranges.
+
+Under the hood, detest uses setjmp/longjmp to bail on a failing test, record it,
+and resume the suite.
+
+Defining the Test Suite
+-----------------------
+TODO: write this section
+
+Running Tests and Interpreting Output
+-------------------------------------
+
+Build tests using your tool of choice with the detest.h header's parent
+directory on the include path and run the resulting executables.
+
+As tests are run, a '.' or an 'F' will print to stdout indicating a test passing
+or failing, respectively.  After all tests are run, the names of all passing
+tests will be printed followed by the names and error messages from all failing
+tests.
