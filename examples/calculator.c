@@ -8,14 +8,20 @@ calculator* calculator_new() {
   return (calculator*) malloc(sizeof(calculator));
 }
 
-calculator* calculator_init(calculator* calc) {
+calculator* calculator_init(calculator* calc, char* brand) {
   calculator_reset(calc);
+  calc->brand = brand;
   return calc;
 }
 
 calculator* calculator_free(calculator* calc) {
   free(calc);
   return NULL;
+}
+
+bool calculator_get_brand(calculator* calc, char** brand) {
+  *brand = calc->brand;
+  return true;
 }
 
 bool calculator_add(calculator* calc, double value, double* sum) {

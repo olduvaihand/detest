@@ -11,11 +11,14 @@ typedef struct calculator {
   double memory[MEMORY_CELLS];
   bool memory_used[MEMORY_CELLS];
   double current;
+  char* brand;
 } calculator;
 
 calculator* calculator_new(void);
-calculator* calculator_init(calculator* calc);
+calculator* calculator_init(calculator* calc, char* brand);
 calculator* calculator_free(calculator* calc);
+
+bool calculator_get_brand(calculator* calc, char** brand);
 
 bool calculator_add(calculator* calc, double value, double* sum);
 bool calculator_subtract(calculator* calc, double value, double* difference);

@@ -5,7 +5,7 @@
 #include "calculator.h"
 
 Detest_TestSuiteSetupFn() {
-  env->user_data = (void*) calculator_init(calculator_new());
+  env->user_data = (void*) calculator_init(calculator_new(), "Casio");
 }
 
 Detest_TestSuiteTeardownFn() {
@@ -14,6 +14,16 @@ Detest_TestSuiteTeardownFn() {
 
 Detest_TestSetupFn() {
   calculator_reset((calculator*) env->user_data);
+}
+
+Detest_TestFn(test_get_brand) {
+  calculator* calc = (calculator*) env->user_data;
+  double result;
+  Detest_AssertNotNull(calc);
+
+  char* brand;
+  Detest_AssertTrue(calculator_get_brand(calc, &brand));
+  Detest_AssertStringsEqual(brand, "Casio");
 }
 
 Detest_TestFn(test_operators) {
@@ -107,6 +117,7 @@ Detest_TestSuite_WithSuiteAndTestSetupAndTeardownCustom(
     Detest_TestSuiteTeardown,
     Detest_TestSetup,
     Detest_Noop,
+    Detest_Test(test_get_brand),
     Detest_Test(test_operators),
     Detest_Test(test_broken_op),
     Detest_Test(test_memory_operators),

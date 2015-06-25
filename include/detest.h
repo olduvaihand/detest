@@ -10,6 +10,7 @@
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 
 #define DETEST_MAX_TEST_SUITE_SIZE 1024
@@ -114,6 +115,7 @@ void detest_noop(detest_environment* env) {}
 #define Detest_AssertNotNull(ptr) Detest_Assert(ptr != NULL, #ptr" != NULL")
 #define Detest_AssertInRange(value, low, high) \
   Detest_Assert(low <= value && value <= high, #value " not in range ["#low", "#high"]")
+#define Detest_AssertStringsEqual(a, b) Detest_Assert(strcmp(a, b) == 0, #a" != "#b)
 
 // Detest hooks and functions
 
