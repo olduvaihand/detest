@@ -18,7 +18,6 @@ Detest_TestSetupFn() {
 
 Detest_TestFn(test_get_brand) {
   calculator* calc = (calculator*) env->user_data;
-  double result;
   Detest_AssertNotNull(calc);
 
   char* brand;
