@@ -69,7 +69,26 @@ and resume the suite.
 
 Defining the Test Suite
 -----------------------
-TODO: write this section
+Once your setup, teardown, and test functions are written, you define the test
+suite at the bottom of the test with one of the Detest_TestSuite* macros:
+
+1 Detest_TestSuite(...)
+2 Detest_TestSuite_WithSuiteSetupAndTeardown(...)
+3 Detest_TestSuite_WithTestSetupAndTeardown(...)
+4 Detest_TestSuite_WithSuiteAndTestSetupAndTeardown(...)
+5 Detest_TestSuite_WithSuiteAndTestSetupAndTeardownCustom(
+    suite_setup_fn, suite_teardown_fn, test_setup_fn, test_teardown_fn, ...)
+
+Detest_TestSuite macros 1-4 assume you've written your entire test suite with
+the Detest_FooFn macros and rely on conventional names to simplify the test
+definition.  Each macro accepts a comma separated list of Detest_Test(test_fn)s
+and produces a test suite data structure and a main function that will execute
+the test suite.
+
+The custom macro allows you to specify the remaining combinations of setup and
+teardown functions.  The Detest_Noop macro should be used for setup and teardown
+functions that aren't defined.  The variadic arguments should each be
+Detest_Test(test_fn)s as with the standard Detest_TestSuite macros.
 
 Running Tests and Interpreting Output
 -------------------------------------
