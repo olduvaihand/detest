@@ -16,16 +16,19 @@ Detest_TestSetupFn() {
   calculator_reset((calculator*) env->user_data);
 }
 
-Detest_TestFn(test_get_brand) {
+Detest_TestFn(get_brand) {
   calculator* calc = (calculator*) env->user_data;
   Detest_AssertNotNull(calc);
 
   char* brand;
   Detest_AssertTrue(calculator_get_brand(calc, &brand));
   Detest_AssertStringsEqual(brand, "Casio");
+  Detest_AssertStringsNotEqual(brand, "TI");
+  Detest_AssertStringsEqualN(brand, "Cas", 3);
+  Detest_AssertStringsNotEqualN(brand, "TI", 2);
 }
 
-Detest_TestFn(test_operators) {
+Detest_TestFn(operators) {
   calculator* calc = (calculator*) env->user_data;
   double result;
   Detest_AssertNotNull(calc);
@@ -44,7 +47,7 @@ Detest_TestFn(test_operators) {
   Detest_AssertEqual(calculator_get_current(calc), result);
 }
 
-Detest_TestFn(test_broken_op) {
+Detest_TestFn(broken_op) {
   calculator* calc = (calculator*) env->user_data;
   double result;
   Detest_AssertNotNull(calc);
@@ -52,7 +55,7 @@ Detest_TestFn(test_broken_op) {
   Detest_AssertTrue(calculator_broken_op(calc, 42., &result));
 }
 
-Detest_TestFn(test_memory_operators) {
+Detest_TestFn(memory_operators) {
   calculator* calc = (calculator*) env->user_data;
   double result;
   Detest_AssertNotNull(calc);
@@ -76,7 +79,7 @@ Detest_TestFn(test_memory_operators) {
   Detest_AssertEqual(calculator_get_current(calc), result);
 }
 
-Detest_TestFn(test_memory) {
+Detest_TestFn(memory) {
   calculator* calc = (calculator*) env->user_data;
   double result;
   Detest_AssertNotNull(calc);
@@ -116,8 +119,8 @@ Detest_TestSuite_WithSuiteAndTestSetupAndTeardownCustom(
     Detest_TestSuiteTeardown,
     Detest_TestSetup,
     Detest_Noop,
-    Detest_Test(test_get_brand),
-    Detest_Test(test_operators),
-    Detest_Test(test_broken_op),
-    Detest_Test(test_memory_operators),
-    Detest_Test(test_memory))
+    Detest_Test(get_brand),
+    Detest_Test(operators),
+    Detest_Test(broken_op),
+    Detest_Test(memory_operators),
+    Detest_Test(memory))

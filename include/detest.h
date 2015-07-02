@@ -116,6 +116,9 @@ void detest_noop(detest_environment* env) {}
 #define Detest_AssertInRange(value, low, high) \
   Detest_Assert(low <= value && value <= high, #value " not in range ["#low", "#high"]")
 #define Detest_AssertStringsEqual(a, b) Detest_Assert(strcmp(a, b) == 0, #a" != "#b)
+#define Detest_AssertStringsNotEqual(a, b) Detest_Assert(strcmp(a, b) != 0, #a" != "#b)
+#define Detest_AssertStringsEqualN(a, b, n) Detest_Assert(strncmp(a, b, n) == 0, #a" != "#b)
+#define Detest_AssertStringsNotEqualN(a, b, n) Detest_Assert(strncmp(a, b, n) != 0, #a" != "#b)
 
 // Detest hooks and functions
 
@@ -123,7 +126,7 @@ void detest_noop(detest_environment* env) {}
 #define Detest_TestSuiteTeardownFn() void test_suite_teardown(detest_environment* env)
 #define Detest_TestSetupFn() void test_setup(detest_environment* env)
 #define Detest_TestTeardownFn() void test_teardown(detest_environment* env)
-#define Detest_TestFn(name) void name##_fn(detest_test* test, detest_environment* env)
+#define Detest_TestFn(name) void test_##name##_fn(detest_test* test, detest_environment* env)
 
 #define Detest_Main() \
 int main(int argc, char* argv[]) { \
@@ -159,7 +162,7 @@ int main(int argc, char* argv[]) { \
 #define Detest_TestSetup test_setup
 #define Detest_TestTeardown test_teardown
 #define Detest_Noop detest_noop
-#define Detest_Test(test_name) { .name = #test_name, .test_fn = &test_name##_fn }
+#define Detest_Test(test_name) { .name = #test_name, .test_fn = &test_##test_name##_fn }
 
 #define Detest_TestSuite(...) \
 static detest_test_suite test_suite = { \
